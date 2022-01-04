@@ -7,5 +7,5 @@ Example :<br/> python3 Text2Json.py --value Error number 3 --key Unknown foramt 
 Output : <br/>
 Json was wrote into errors.txt successfully !<br/>
 JSON :<br/>
-{"Error number 3 ": "Unknown foramt --file "}
+{"Error number 3 ": "Unknown foramt "}
 
