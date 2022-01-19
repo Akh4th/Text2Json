@@ -1,106 +1,50 @@
-import sys, json
+import argparse, json
 
-global value2, key2, file_arg
-value2, key2, file_arg = "", "", 0
+
 js = {}
-keys = []
-values = []
-
-if "--help" in sys.argv:
-    print("In order to run the convertor with arguments two arguments are required, --key & --value.")
-    print("Example : python text2json --key Error number 3 --value unrecognized file name\n")
-    print("Or simply run the script without arguments for infinity convert ;)")
-    quit()
-
-
-def validate():
-    try:
-        if sys.argv[1] == "--help":
-            return True
-    except IndexError:
-        print("No arguments were given !")
-        return False
-    if "--key" not in sys.argv or "--value" not in sys.argv:
-        print("Wrong arguments were given !")
-        return False
-    else:
-        return True
+p = argparse.ArgumentParser(description="Text to Json convertor !")
+p.add_argument("--key", help="Key for json", metavar="", nargs='*')
+p.add_argument("--value", help="Value for json", metavar="", nargs='*')
+p.add_argument("--multiply", action="store_true", help="Print multiply jsons in an interactive mode")
+args = p.parse_args()
 
 
 def txt2json(valued, keyed):
-    js[keyed] = valued
-    return js
+    return json.dumps({keyed,valued})
 
 
-if __name__ == "__main__":
-    if validate():
-        args = {}
-        for i in range(1, 100):
-            try:
-                if sys.argv[i].lower() == '--key':
-                    x = i + 1
-                    args["Key"] = i
-                elif sys.argv[i].lower() == '--value':
-                    y = i + 1
-                    args["Value"] = i
-                elif sys.argv[i].lower() == '--file':
-                    file_arg = i + 1
-                elif sys.argv[i].upper().isupper():
-                    z = i + 1
-                    args["Last"] = i
-            except:
-                continue
-        if x > y:
-            print("Wrong order, please use :\npython Text2Json.py --key <key> --value <value>")
-            quit()
-        if file_arg != 0:
-            for i in range(y, file_arg - 1):
-                key2 = key2 + sys.argv[i] + " "
+def get_key(x):
+    keys = []
+    key1 = ""
+    for j in x:
+        if j != "," and j != x[-1]:
+            key1 = key1 + j + " "
+        elif j == x[-1]:
+            key1 = key1 + j
+            keys.append(key1)
         else:
-            for i in range(y, z):
-                key2 = key2 + sys.argv[i] + " "
-        for i in range(x, y - 1):
-            value2 = value2 + sys.argv[i] + " "
-        if "--file" in sys.argv:
-            with open(sys.argv[file_arg], "a+") as file:
-                file.write(json.dumps(txt2json(valued=value2, keyed=key2)) + "\n")
-            print("Json was wrote into " + sys.argv[file_arg] + " successfully !\nJSON :")
-            print(json.dumps(txt2json(valued=value2, keyed=key2)))
-        else:
-            print(json.dumps(txt2json(valued=value2, keyed=key2)))
+            keys.append(key1)
+            key1 = ""
+    return keys
+
+
+try:
+    if args.multiply or not args.key or not args.value:
+        try:
+            while True:
+                key = input("\nKey : ")
+                value = input("Value : ")
+                js[key] = value
+        except KeyboardInterrupt:
+            print("\nThank you for using, have a great day !")
+            print(json.dumps(js))
     else:
-        manual = input("Start manual converting ?\n[Yes/.../Help] : ")
-        if manual.lower() == "yes":
-            file = input("Append JSON into a file ?\n[Yes/...] : ")
-            if file.lower() == "yes":
-                file = input("File Name : ")
-                filed = True
-            else:
-                filed = False
-            try:
-                while input("PRESS ENTER TO CONTINUE OR PRESS CTRL + C TO STOP !") == "":
-                    print(keys, values)
-                    key = input("\nEnter Key : ")
-                    keys.append(key)
-                    value = input("Enter Value : ")
-                    values.append(value)
-            except KeyboardInterrupt:
-                for i in range(len(keys)):
-                    txt2json(keyed=keys[i], valued=values[i])
-                if filed:
-                    with open(file, "a+") as file1:
-                        file1.write(json.dumps(js) + "\n")
-                    print("Json was wrote into " + file + " successfully !\nJSON :")
-                    print(json.dumps(js))
-                else:
-                    print("JSON : \n")
-                    print(json.dumps(js))
-                print("\nThank you for using !")
-                quit()
-        elif manual.lower() == "help":
-            print("In order to run the convertor with arguments two arguments are required, --key & --value.")
-            print("Example : python text2json --key Error number 3 --value unrecognized file name\n")
-            print("Or simply run the script without arguments for infinity convert ;)")
-            quit()
-        else:
-            print("Please try again with the arguments --key <key> --value <value>")
+        keys = get_key(args.key)
+        values = get_key(args.value)
+        if len(keys) == len(values):
+            for i in range(len(values)):
+                js[keys[i]] = values[i]
+            print("\nThank you for using, have a great day !")
+            print(json.dumps(js))
+except Exception as e:
+    print("Sorry, there was an error while running.\nPlease try again later.\nError Code : " + str(e))
